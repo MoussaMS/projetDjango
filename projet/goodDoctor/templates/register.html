@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>register</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 900px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 40px;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .card-body .h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .form-outline {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 16px;
+      color: #555;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .form-control:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .form-check-label {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .img-fluid {
+      max-width: 100%;
+      height: auto;
+      border-radius: 15px;
+    }
+
+    .d-flex {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Responsive styling */
+    @media (max-width: 768px) {
+      .card {
+        flex-direction: column;
+      }
+
+      .img-fluid {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+          <div class="card-body">
+            <p class="h1 fw-bold mb-5">Créer un compte</p>
+            <form method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+                
+                <!-- Message Section -->
+                {% if messages %}
+                  <div class="alert alert-info">
+                    {% for message in messages %}
+                      {{ message }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                
+                <!-- Name -->
+                <div class="form-outline">
+                    <label for="nom" class="form-label">Nom</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+
+                <div class="form-outline">
+                    <label for="prenom" class="form-label">Prénom</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                </div>
+              
+                <!-- Email -->
+                <div class="form-outline">
+                    <label for="email" class="form-label">Adresse Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+              
+                <!-- Password -->
+                <div class="form-outline">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" class="form-control" id="mot_de_passe" name="mot_de_passe" required>
+                </div>
+              
+                <!-- Repeat Password -->
+                <div class="form-outline">
+                    <label for="password" class="form-label">Confirmation Mot de passe</label>
+                    <input type="password" class="form-control" id="mot_de_passe_repeat" name="mot_de_passe_repeat" required>
+                </div>
+              
+                <!-- Role Selection -->
+                <div class="form-outline">
+                  <label class="form-label" for="userRole">Qui vous êtes ?</label>
+                  <select id="userRole" name="role" class="form-control" required>
+                    <option value="">-- Choisir rôle --</option>
+                    <option value="medecin">Médecin</option>
+                    <option value="patient">Patient</option>
+                  </select>
+                </div>
+              
+                <!-- Terms and conditions -->
+                <!--<div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="form2Example3c" required />
+                  <label class="form-check-label" for="form2Example3">
+                    I agree all statements in <a href="#!">Terms of service</a>
+                  </label>
+                </div>-->
+              
+                <!-- Register Button -->
+                <div class="d-flex">
+                  <button type="submit" class="btn btn-primary">S'inscrire</button>
+                </div>
+              </form>
+              
+          </div>
+          <div class="card-body">
+            <img src="{% static 'images/00.webp' %}" class="img-fluid" alt="Sample image">
+        </div>
+        </div>
+</body>
+</html>
