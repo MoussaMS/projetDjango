@@ -1,0 +1,47 @@
+.hero-section {
+    background-size: cover;
+    background-position: center center;
+    position: relative;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Overlay pour améliorer la lisibilité du texte */
+}
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #007bff; /* Couleur des icônes */
+}
+.fade-in {
+    animation: fadeIn 2s ease-in-out;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.search-bar {
+    margin-top: 20px;
+}
+.feature-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+}

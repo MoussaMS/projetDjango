@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="goodDoctor est une plateforme innovante pour connecter patients et médecins.">
+    <meta name="keywords" content="santé, médecins, patients, rendez-vous, gestion médicale">
+    <title>Plateforme Santé</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <style>
+        .hero-section {
+            background-image: url("{% static 'images/home.jpeg' %}");
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">goodDoctor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#features">Fonctionnalités</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">À propos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section text-center py-5">
+        <div class="container">
+            <h1 class="display-4 fade-in" style="color: white;">Bienvenue sur goodDoctor</h1>
+            <p class="lead fade-in" style="color: white;">Une plateforme innovante pour connecter patients et médecins.</p>
+            <div class="search-bar">
+                <input type="text" class="form-control" placeholder="Rechercher un médecin ou une spécialité...">
+            </div>
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg fade-in mt-3">Inscrivez-vous</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg fade-in mt-3">Connexion</a>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center fade-in">Fonctionnalités</h2>
+            <div class="row mt-4">
+                <div class="col-md-6 text-center fade-in">
+                    <div class="feature-card">
+                        <i class="fas fa-user-md feature-icon"></i>
+                        <h4>Gestion des Profils Utilisateurs</h4>
+                        <ul>
+                            <li>Inscription et gestion des informations pour patients et médecins</li>
+                            <li>Suivi des antécédents médicaux et gestion des horaires</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center fade-in">
+                    <div class="feature-card">
+                        <i class="fas fa-calendar-alt feature-icon"></i>
+                        <h4>Planification et Notifications</h4>
+                        <ul>
+                            <li>Prise et gestion des rendez-vous</li>
+                            <li>Rappels de rendez-vous et notifications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center fade-in">À propos</h2>
+            <p class="text-center mt-4 fade-in">
+                goodDoctor est une plateforme conçue pour simplifier la communication entre patients et médecins, tout en offrant des outils de gestion performants pour un suivi optimal de la santé.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3">
+        <p class="mb-0">© 2024 goodDoctor. Tous droits réservés.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

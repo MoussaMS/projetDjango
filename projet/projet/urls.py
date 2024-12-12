@@ -17,11 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from goodDoctor import views
+
+
 #from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),  # Afficher directement goodDoctor sur la page d'accueil
-    path('goodDoctor/', views.index, name='goodDoctor'),
+    path('', views.home, name='home'),  # Afficher directement goodDoctor sur la page d'accueil
+    #path('goodDoctor/', views.index, name='goodDoctor'),
     path('register/', views.register, name='register'),
+    path('login/', views.login_view, name='login'),
 ]

@@ -1,13 +1,42 @@
 from django.shortcuts import render, redirect
+# from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from .models import Utilisateurs
 from django.contrib.auth.hashers import make_password
-from django.shortcuts import HttpResponse
-from django.http import HttpResponse
+#from django.shortcuts import HttpResponse
+#from django.http import HttpResponse
 
 # Create your views here.
-def index(request):
-    return HttpResponse("Bienvenue sur mon site de Planification santé !!")
+def home(request):
+    return render(request, 'home.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        mot_de_passe = request.POST.get('mot_de_passe')
+
+        # Vérifie si l'utilisateur existe
+        try:
+            utilisateur = Utilisateurs.objects.get(email=email)
+            if check_password(mot_de_passe, utilisateur.mot_de_passe):  # Vérifie le mot de passe
+                # Stocke l'utilisateur dans la session
+                request.session['utilisateur_id'] = utilisateur.id
+                request.session['utilisateur_role'] = utilisateur.role
+
+                # Redirige en fonction du rôle
+                if utilisateur.role == 'medecin':
+                    return redirect('medecin_dashboard') # à faire
+                elif utilisateur.role == 'patient':
+                    return redirect('patient_dashboard') # à faire
+                else:
+                    return redirect('home')
+            else:
+                messages.error(request, 'Mot de passe incorrect.')
+        except Utilisateurs.DoesNotExist:
+            messages.error(request, 'Aucun compte trouvé avec cet email.')
+
+    return render(request, 'login.html')
 
 def register(request):
     if request.method == "POST":
