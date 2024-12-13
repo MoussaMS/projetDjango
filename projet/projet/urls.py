@@ -27,6 +27,11 @@ urlpatterns = [
     #path('goodDoctor/', views.index, name='goodDoctor'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
+<<<<<<< HEAD
 
     path('medecin_dashboard/', views.medecin_dashboard, name='medecin_dashboard'),
+=======
+    path('patient_dashboard/', views.patient_dashboard  , name='patient_dashboard'),
+
+>>>>>>> 1cb915f342b409598b20213256f6bc4c8fdb992d
 ]
