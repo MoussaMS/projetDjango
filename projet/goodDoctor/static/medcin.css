@@ -271,7 +271,7 @@ button:hover {
     }
     .footer-container {
         position: fixed; /* En mobile aussi il doit être fixe en bas */
-        bottom: 0;
+        bottom: 0; 
     }
 
 }
