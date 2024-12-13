@@ -10,6 +10,8 @@ from django.contrib.auth.hashers import make_password
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
+def medecin_dashboard(request):
+    return render(request, 'medecin_dashboard.html')
 
 def login_view(request):
     if request.method == 'POST':

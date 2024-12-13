@@ -27,4 +27,6 @@ urlpatterns = [
     #path('goodDoctor/', views.index, name='goodDoctor'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
+    path('medecin_dashboard/', views.medecin_dashboard, name='medecin_dashboard'),
+
 ]
