@@ -25,13 +25,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),  # Afficher directement goodDoctor sur la page d'accueil
     #path('goodDoctor/', views.index, name='goodDoctor'),
-    path('register/', views.register, name='register'),
+    path('register/', views.register_patient, name='register'),
+    path('register_medecin/', views.register_medecin, name='register_medecin'),
     path('login/', views.login_view, name='login'),
-<<<<<<< HEAD
+    # path('medecin_dashboard/', views.medecin_dashboard, name='medecin_dashboard'),
+    # path('patient_dashboard/', views.patient_dashboard, name='patient_dashboard'),
+    path('dashboard/patient/', views.patient_dashboard, name='patient_dashboard'),
+    path('dashboard/medecin/', views.medecin_dashboard, name='medecin_dashboard'),
+    path('dashboard/responsable/', views.dashboard_responsable, name='dashboard_responsable'),
 
-    path('medecin_dashboard/', views.medecin_dashboard, name='medecin_dashboard'),
-=======
-    path('patient_dashboard/', views.patient_dashboard  , name='patient_dashboard'),
-
->>>>>>> 1cb915f342b409598b20213256f6bc4c8fdb992d
 ]

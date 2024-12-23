@@ -5,12 +5,13 @@ class Utilisateurs(models.Model):
     ROLE_CHOICES = [
         ('patient', 'Patient'),
         ('medecin', 'Médecin'),
+        ('responsable', 'Responsable')
     ]
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     mot_de_passe = models.CharField(max_length=255)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=11, choices=ROLE_CHOICES)
     numero_de_telephone = models.CharField(max_length=20, blank=True, null=True)
     adresse = models.TextField(blank=True, null=True)
     date_de_naissance = models.DateField(blank=True, null=True)

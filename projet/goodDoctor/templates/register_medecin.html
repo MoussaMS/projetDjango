@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Médecin</title>
+</head>
+<body>
+    <h1>Inscription d'un Médecin</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="nom">Nom :</label>
+        <input type="text" id="nom" name="nom" required><br>
+
+        <label for="prenom">Prénom :</label>
+        <input type="text" id="prenom" name="prenom" required><br>
+
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="specialite">Spécialité :</label>
+        <input type="text" id="specialite" name="specialite" required><br>
+
+        <label for="numero_de_licence">Numéro de licence :</label>
+        <input type="text" id="numero_de_licence" name="numero_de_licence" required><br>
+
+        <label for="mot_de_passe">Mot de passe :</label>
+        <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
+
+        <button type="submit">Créer le Médecin</button>
+    </form>
+</body>
+</html>
