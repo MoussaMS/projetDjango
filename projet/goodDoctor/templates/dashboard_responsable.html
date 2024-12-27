@@ -4,14 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de bord Responsable</title>
+    <style>
+        /* From Uiverse.io by xueyuantan */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li {
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 12em;
+            height: 3em;
+            border-radius: 30em;
+            font-size: 15px;
+            font-family: inherit;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 6px 6px 12px #c5c5c5,
+                        -6px -6px 12px #ffffff;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button::before {
+            content: '';
+            width: 0;
+            height: 3em;
+            border-radius: 30em;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-image: linear-gradient(to right, #435dd2 0%, #f9f9f6 100%);
+            transition: width 0.5s ease;
+            display: block;
+            z-index: -1;
+        }
+
+        button:hover::before {
+            width: 12em;
+        }
+
+        button:hover {
+            transform: translateY(-5px);
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenue, Responsable</h1>
+    <h1>Bonjour {{ prenom_responsable }} !!</h1>
     <nav>
         <ul>
-            <li><a href="{% url 'register_medecin' %}">Inscrire un Médecin</a></li>
+            <li><button id="inscrireMedecin">Inscrire médecin</button></li>
+            <li><button id="deconnexion">Déconnexion</button></li>
             <!-- Ajouter d'autres liens utiles ici -->
         </ul>
     </nav>
+
+    <script>
+        document.getElementById('inscrireMedecin').addEventListener('click', function() {
+            window.location.href = "{% url 'register_medecin' %}";
+        });
+
+        document.getElementById('deconnexion').addEventListener('click', function() {
+            window.location.href = "{% url 'home' %}";
+        });
+    </script>
 </body>
 </html>

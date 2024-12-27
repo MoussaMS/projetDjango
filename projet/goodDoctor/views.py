@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 # from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
-from .models import Utilisateurs
+from .models import Utilisateurs, RendezVous
 from .models import Medecin
 from django.contrib.auth.hashers import make_password
 #from django.shortcuts import HttpResponse
@@ -15,20 +15,74 @@ from django.http import HttpResponseForbidden
 def home(request):
     return render(request, 'home.html')
 
+@login_required
 def patient_dashboard(request):
-    return render(request, 'patient_dashboard.html')
+    print("Email utilisateur connecté :", request.user.email)  # Debug
+    utilisateur = Utilisateurs.objects.get(email=request.user.email)  # Ligne problématique
+    rendez_vous = RendezVous.objects.filter(patient=utilisateur).order_by('-date_heure')
+    medecins = Medecin.objects.all()
+
+    # Gestion du formulaire
+    if request.method == 'POST':
+        specialite = request.POST.get('specialite')
+        date = request.POST.get('date')
+        heure = request.POST.get('heure')
+        motif = request.POST.get('motif')
+
+        try:
+            medecin = Medecin.objects.get(id=specialite)
+            RendezVous.objects.create(
+                patient=utilisateur,
+                medecin=medecin,
+                date_heure=f"{date} {heure}",
+                motif=motif,
+                statut='en attente'
+            )
+            messages.success(request, "Rendez-vous pris avec succès.")
+        except Medecin.DoesNotExist:
+            messages.error(request, "Médecin ou spécialité invalide.")
+
+        return redirect('patient_dashboard')
+
+    return render(request, 'patient_dashboard.html', {
+        'rendez_vous': rendez_vous,
+        'medecins': medecins,
+    })
+
 
 @login_required
 def medecin_dashboard(request):
     if request.session.get('utilisateur_role') != 'medecin':
         return HttpResponseForbidden("Accès réservé aux médecins.")
-    return render(request, 'medecin_dashboard.html')
+
+    # Récupérer l'utilisateur connecté
+    utilisateur_id = request.session.get('utilisateur_id')
+    utilisateur = Utilisateurs.objects.get(id=utilisateur_id)
+
+    # Récupérer les informations du médecin
+    medecin = Medecin.objects.get(utilisateurs=utilisateur)
+
+    # Récupérer les rendez-vous du médecin
+    rendez_vous = RendezVous.objects.filter(medecin=medecin).order_by('-date_heure')
+
+    context = {
+        'medecin': medecin,
+        'rendez_vous': rendez_vous,
+    }
+
+    return render(request, 'medecin_dashboard.html', context)
+
 
 @login_required
 def dashboard_responsable(request):
     # if request.Utilisateurs.role != 'responsable':
     #     return HttpResponseForbidden("Accès réservé aux responsables.")
-    return render(request, 'dashboard_responsable.html')
+    utilisateur_id = request.session.get('utilisateur_id')
+    utilisateur = Utilisateurs.objects.get(id=utilisateur_id)
+    context = {
+        'prenom_responsable': utilisateur.prenom,
+    }
+    return render(request, 'dashboard_responsable.html', context)
 
 
 def login_view(request):
@@ -131,3 +185,39 @@ def register_medecin(request):
             return redirect('register_medecin')
 
     return render(request, 'register_medecin.html')
+
+def recherche_medecin(request):
+    if request.method == 'POST':
+        specialite = request.POST.get('specialite')
+        medecins = Medecin.objects.filter(specialite__icontains=specialite)
+        context = {
+            'medecins': medecins,
+            'specialite': specialite,
+        }
+        return render(request, 'recherche_medecin.html', context)
+    return redirect('home')
+
+@login_required
+def prendre_rendez_vous(request, medecin_id):
+    if request.method == 'POST':
+        medecin = Medecin.objects.get(id=medecin_id)
+        patient = Utilisateurs.objects.get(id=request.session['utilisateur_id'])
+        date_heure = request.POST.get('date_heure')
+        motif = request.POST.get('motif')
+
+        rendez_vous = RendezVous.objects.create(
+            patient=patient,
+            medecin=medecin,
+            date_heure=date_heure,
+            motif=motif,
+            statut='en attente'
+        )
+        rendez_vous.save()
+        messages.success(request, "Rendez-vous pris avec succès.")
+        return redirect('patient_dashboard')
+
+    medecin = Medecin.objects.get(id=medecin_id)
+    context = {
+        'medecin': medecin,
+    }
+    return render(request, 'prendre_rendez_vous.html', context)

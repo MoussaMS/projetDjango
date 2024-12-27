@@ -45,3 +45,6 @@
 .feature-card:hover {
     transform: translateY(-10px);
 }
+.btn-light:hover, .btn-outline-light:hover {
+    transform: translateY(-5px);
+}

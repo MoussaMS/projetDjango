@@ -5,136 +5,333 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Médecin</title>
-    <link rel="stylesheet" href="{% static 'medcin.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f4f5f7;
+            margin: 0;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        header .speciality, header .license {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+
+        .dashboard {
+            display: flex;
+            transition: margin-left 0.3s;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #4facfe;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            transform: translateX(-100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+        }
+
+        .content.collapsed {
+            margin-left: 0;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .profile-form, .appointment-list, .availability-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .btn:hover {
+            background: #00f2fe;
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .appointment-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+        }
+
+        .appointment-item p {
+            margin: 0;
+        }
+
+        .appointment-item .actions {
+            margin-top: 10px;
+        }
+
+        .toggle-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1002;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1003;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            border: 8px solid rgba(0, 0, 0, 0.1);
+            border-top: 8px solid #4facfe;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="header-container">
-            <h1>Bienvenue, Dr. <span id="doctorName">Jean Dupont</span></h1>
-            <span class="speciality">Spécialité : Cardiologue</span>
+        <h1>Bienvenue, Dr. <span>{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}</span></h1>
+        <div>
+            <span class="speciality"><i class="fas fa-stethoscope"></i> Spécialité : {{ medecin.specialite }}</span> |
+            <span class="license"><i class="fas fa-id-card"></i> Licence : {{ medecin.numero_de_licence }}</span>
         </div>
     </header>
-    <footer>
-        <div class="footer-container">
-            <button class="btn-logout">Déconnexion</button>
-        </div>
-    </footer>
+
+    <button class="toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
     <div class="dashboard">
-        <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <ul>
-                <li><a href="#profile" class="active">Profil</a></li>
-                <li><a href="#appointments">Rendez-vous</a></li>
-                <li><a href="#messages">Messages</a></li>
-                <li><a href="#reviews">Évaluations</a></li>
-                <li><a href="#availability">Disponibilités</a></li>
+                <li><a href="#profile" class="active"><i class="fas fa-user"></i> Profil</a></li>
+                <li><a href="#appointments"><i class="fas fa-calendar-alt"></i> Rendez-vous</a></li>
+                <li><a href="#messages"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="#reviews"><i class="fas fa-star"></i> Évaluations</a></li>
+                <li><a href="#availability"><i class="fas fa-clock"></i> Disponibilités</a></li>
             </ul>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="content">
-            <!-- Profile Section -->
             <section id="profile" class="section active">
                 <h2>Mon Profil</h2>
-                <form id="profileForm" class="profile-form">
+                <form class="profile-form">
                     <div class="form-group">
-                        <label for="name">Nom Complet</label>
-                        <input type="text" id="name" placeholder="Entrez votre nom complet" value="Jean Dupont" required>
+                        <label>Nom Complet</label>
+                        <input type="text" value="{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}">
                     </div>
                     <div class="form-group">
-                        <label for="speciality">Spécialité</label>
-                        <input type="text" id="speciality" value="Cardiologue" required>
+                        <label>Spécialité</label>
+                        <input type="text" value="{{ medecin.specialite }}">
                     </div>
                     <div class="form-group">
-                        <label for="contact">Téléphone</label>
-                        <input type="tel" id="contact" value="0123456789" required>
+                        <label>Téléphone</label>
+                        <input type="text" value="{{ medecin.utilisateurs.telephone }}">
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" value="jean.dupont@exemple.com" required>
+                        <label>Email</label>
+                        <input type="email" value="{{ medecin.utilisateurs.email }}">
                     </div>
-                    <button type="submit" class="btn-submit">Mettre à jour</button>
+                    <button type="submit" class="btn">Mettre à jour</button>
                 </form>
             </section>
 
-            <!-- Appointments Section -->
             <section id="appointments" class="section">
                 <h2>Mes Rendez-vous</h2>
                 <div class="appointment-list">
+                    {% for rendez_vous in rendez_vous %}
                     <div class="appointment-item">
-                        <p><strong>Patient :</strong> Marie Durand</p>
-                        <p><strong>Date :</strong> 15 Décembre 2024</p>
-                        <p><strong>Heure :</strong> 10:00</p>
+                        <p><strong>Patient :</strong> {{ rendez_vous.patient.prenom }} {{ rendez_vous.patient.nom }}</p>
+                        <p><strong>Date :</strong> {{ rendez_vous.date_heure|date:"d F Y" }}</p>
+                        <p><strong>Heure :</strong> {{ rendez_vous.date_heure|time:"H:i" }}</p>
                         <div class="actions">
-                            <button class="btn-accept">Accepter</button>
-                            <button class="btn-reject">Rejeter</button>
+                            <button class="btn btn-success">Accepter</button>
+                            <button class="btn btn-danger">Rejeter</button>
                         </div>
                     </div>
-                    <div class="appointment-item">
-                        <p><strong>Patient :</strong> Julien Moreau</p>
-                        <p><strong>Date :</strong> 16 Décembre 2024</p>
-                        <p><strong>Heure :</strong> 14:00</p>
-                        <div class="actions">
-                            <button class="btn-accept">Accepter</button>
-                            <button class="btn-reject">Rejeter</button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </section>
 
-            <!-- Messages Section -->
             <section id="messages" class="section">
                 <h2>Messages</h2>
-                <div class="message-list">
-                    <div class="message-item">
-                        <p><strong>De :</strong> Marie Durand</p>
-                        <p><strong>Message :</strong> Bonjour docteur, j'aimerais savoir si je peux avancer mon rendez-vous.</p>
-                        <button class="btn-reply">Répondre</button>
-                    </div>
-                </div>
+                <div>Vos messages apparaîtront ici.</div>
             </section>
 
-            <!-- Reviews Section -->
             <section id="reviews" class="section">
                 <h2>Évaluations</h2>
-                <div class="review-list">
-                    <div class="review-item">
-                        <p><strong>Patient :</strong> Julien Moreau</p>
-                        <p><strong>Note :</strong> 5/5</p>
-                        <p><strong>Commentaire :</strong> Très satisfait du service.</p>
-                    </div>
-                </div>
+                <div>Vos évaluations apparaîtront ici.</div>
             </section>
 
-            <!-- Availability Section -->
             <section id="availability" class="section">
                 <h2>Disponibilités</h2>
-                <div class="availability-form">
-                    <form>
-                        <label for="day">Jour</label>
-                        <select id="day">
-                            <option>Lundi</option>
-                            <option>Mardi</option>
-                            <option>Mercredi</option>
-                            <option>Jeudi</option>
-                            <option>Vendredi</option>
-                            <!-- ... -->
-                        </select>
-                        <label for="startTime">Heure de début</label>
-                        <input type="time" id="startTime">
-                        <label for="endTime">Heure de fin</label>
-                        <input type="time" id="endTime">
-                        <button class="btn-add-availability">Ajouter</button>
-                    </form>
-                </div>
+                <form class="availability-form">
+                    <label>Jour</label>
+                    <select>
+                        <option>Lundi</option>
+                        <option>Mardi</option>
+                        <option>Mercredi</option>
+                        <option>Jeudi</option>
+                        <option>Vendredi</option>
+                    </select>
+                    <label>Heure de début</label>
+                    <input type="time">
+                    <label>Heure de fin</label>
+                    <input type="time">
+                    <button class="btn">Ajouter</button>
+                </form>
             </section>
         </main>
+    </div>
+
+    <footer>
+        &copy; 2024 Dashboard Médecin
+    </footer>
+
+    <div class="loading">
+        <div class="loading-spinner"></div>
     </div>
 
     <script>
         const tabs = document.querySelectorAll('.sidebar a');
         const sections = document.querySelectorAll('.section');
+        const sidebar = document.querySelector('.sidebar');
+        const content = document.querySelector('.content');
+        const loading = document.querySelector('.loading');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -144,7 +341,26 @@
                 sections.forEach(section => section.classList.remove('active'));
                 const target = document.querySelector(tab.getAttribute('href'));
                 target.classList.add('active');
+                loading.classList.add('active');
+                setTimeout(() => {
+                    loading.classList.remove('active');
+                }, 1000);
+                sidebar.classList.add('active');
+                content.classList.remove('collapsed');
             });
+        });
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            content.classList.toggle('collapsed');
+        }
+
+        // Ensure the sidebar is visible when a tab is clicked
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.sidebar a')) {
+                sidebar.classList.add('active');
+                content.classList.remove('collapsed');
+            }
         });
     </script>
 </body>

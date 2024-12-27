@@ -4,30 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription Médecin</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            padding: 20px;
+            border-radius: 20px;
+            position: relative;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 1px solid #333;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+            color: #00bfff;
+        }
+
+        .title::before {
+            width: 18px;
+            height: 18px;
+        }
+
+        .title::after {
+            width: 18px;
+            height: 18px;
+            animation: pulse 1s linear infinite;
+        }
+
+        .title::before,
+        .title::after {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            left: 0px;
+            background-color: #00bfff;
+        }
+
+        .message,
+        .signin {
+            font-size: 14.5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .signin {
+            text-align: center;
+        }
+
+        .signin a:hover {
+            text-decoration: underline royalblue;
+        }
+
+        .signin a {
+            color: #00bfff;
+        }
+
+        .flex {
+            display: flex;
+            width: 100%;
+            gap: 6px;
+        }
+
+        .form label {
+            position: relative;
+        }
+
+        .form label .input {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            padding: 20px 05px 05px 10px;
+            outline: 0;
+            border: 1px solid rgba(105, 105, 105, 0.397);
+            border-radius: 10px;
+        }
+
+        .form label .input + span {
+            color: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            left: 10px;
+            top: 0px;
+            font-size: 0.9em;
+            cursor: text;
+            transition: 0.3s ease;
+        }
+
+        .form label .input:placeholder-shown + span {
+            top: 12.5px;
+            font-size: 0.9em;
+        }
+
+        .form label .input:focus + span,
+        .form label .input:valid + span {
+            color: #00bfff;
+            top: 0px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .input {
+            font-size: medium;
+        }
+
+        .submit {
+            border: none;
+            outline: none;
+            padding: 10px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            transform: .3s ease;
+            background-color: #00bfff;
+        }
+
+        .submit:hover {
+            background-color: #00bfff96;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        .back-button {
+            display: flex;
+            height: 3em;
+            width: 100px;
+            align-items: center;
+            justify-content: center;
+            background-color: #eeeeee4b;
+            border-radius: 3px;
+            letter-spacing: 1px;
+            transition: all 0.2s linear;
+            cursor: pointer;
+            border: none;
+            background: #fff;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-button > svg {
+            margin-right: 5px;
+            margin-left: 5px;
+            font-size: 20px;
+            transition: all 0.4s ease-in;
+        }
+
+        .back-button:hover > svg {
+            font-size: 1.2em;
+            transform: translateX(-5px);
+        }
+
+        .back-button:hover {
+            box-shadow: 9px 9px 33px #d1d1d1, -9px -9px 33px #ffffff;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
-    <h1>Inscription d'un Médecin</h1>
-    <form method="POST">
+    <button class="back-button" onclick="window.history.back();">
+        <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+            <path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"></path>
+        </svg>
+        <span>Retour</span>
+    </button>
+    <form method="POST" class="form">
         {% csrf_token %}
-        <label for="nom">Nom :</label>
-        <input type="text" id="nom" name="nom" required><br>
+        <p class="title">Inscription d'un nouveau Médecin </p>
+        <!-- <p class="message">Inscription d'un nouveau Médecin. </p> -->
+        <div class="flex">
+            <label>
+                <input class="input" type="text" id="prenom" name="prenom" placeholder="" required="">
+                <span>Prénom</span>
+            </label>
 
-        <label for="prenom">Prénom :</label>
-        <input type="text" id="prenom" name="prenom" required><br>
+            <label>
+                <input class="input" type="text" id="nom" name="nom" placeholder="" required="">
+                <span>Nom</span>
+            </label>
+        </div>
 
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required><br>
+        <label>
+            <input class="input" type="email" id="email" name="email" placeholder="" required="">
+            <span>Email</span>
+        </label>
 
-        <label for="specialite">Spécialité :</label>
-        <input type="text" id="specialite" name="specialite" required><br>
+        <label>
+            <input class="input" type="text" id="specialite" name="specialite" placeholder="" required="">
+            <span>Spécialité</span>
+        </label>
 
-        <label for="numero_de_licence">Numéro de licence :</label>
-        <input type="text" id="numero_de_licence" name="numero_de_licence" required><br>
+        <label>
+            <input class="input" type="text" id="numero_de_licence" name="numero_de_licence" placeholder="" required="">
+            <span>Numéro de Licence</span>
+        </label>
 
-        <label for="mot_de_passe">Mot de passe :</label>
-        <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
+        <label>
+            <input class="input" type="password" id="mot_de_passe" name="mot_de_passe" placeholder="" required="">
+            <span>Mot de Passe</span>
+        </label>
 
-        <button type="submit">Créer le Médecin</button>
+        <button class="submit">Inscrire</button>
+        <!-- <p class="signin">Already have an acount ? <a href="#">Signin</a> </p> -->
     </form>
 </body>
 </html>

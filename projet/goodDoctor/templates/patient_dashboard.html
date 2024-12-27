@@ -1,214 +1,119 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord du Patient</title>
-    <!-- Bootstrap CSS -->
+    <meta name="description" content="goodDoctor est une plateforme innovante pour connecter patients et médecins.">
+    <meta name="keywords" content="santé, médecins, patients, rendez-vous, gestion médicale">
+    <title>Tableau de bord - Patient</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'home.css' %}">
     <style>
-        body {
-            background-color: #f4f8fb;
-        }
-        .navbar {
-            background-color: #007bff;
-        }
-        .navbar-brand, .nav-link {
-            color: white !important;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .feature-icon {
-            font-size: 50px;
-            color: #007bff;
+        .hero-section {
+            background-image: url("{% static 'images/home.jpeg' %}");
         }
     </style>
 </head>
 <body>
-
-    <!-- Barre de navigation -->
-    <nav class="navbar navbar-expand-lg">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="#">GoodDoctor</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <a class="navbar-brand" href="#">goodDoctor</a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Accueil</a>
+                        <a href="{% url 'home' %}" class="nav-link active">Retour à l'accueil</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Mes Rendez-vous</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Notifications</a>
-                    </li>
+
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">Tableau de bord du Patient</h1>
 
-        <!-- Section Profil Médical -->
-        <section class="mb-5">
-            <h2 class="mb-3">Mon Profil Médical</h2>
-            <div class="card">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="photo1.avif" alt="Profil médical" class="img-fluid rounded-start">
+
+    <!-- Hero Section -->
+    <header class="hero-section text-center py-5">
+        <div class="container">
+            <h1 class="display-4 fade-in" style="color: white;">Bonjour {{ patient.nom }}</h1>
+            <p class="lead fade-in" style="color: white;">Bienvenue sur votre tableau de bord patient.</p>
+
+            {% if not has_rendezvous %}
+            <!-- Bouton pour prendre un rendez-vous si aucun n'est pris -->
+            <a href="{% url 'login' %}?next={% url 'patient_dashboard' %}?medecin_id={{ medecin.id }}" class="btn btn-primary">Prendre un rendez-vous</a>
+            {% else %}
+            <!-- Message si le patient a déjà pris un rendez-vous -->
+            <p class="text-light fade-in mt-3">Votre prochain rendez-vous est prévu le {{ prochain_rendezvous.date_heure|date:"d/m/Y H:i" }}.</p>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center fade-in">Fonctionnalités</h2>
+            <div class="row mt-4">
+                <div class="col-md-6 text-center fade-in">
+                    <div class="feature-card">
+                        <i class="fas fa-user-md feature-icon"></i>
+                        <h4>Votre Profil Médical</h4>
+                        <ul>
+                            <li>Consultez vos antécédents médicaux</li>
+                            <li>Suivez vos traitements et allergies</li>
+                        </ul>
                     </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Antécédents médicaux</h5>
-                            <p class="card-text">Hypertension, Asthme</p>
-                            <h5 class="card-title">Médicaments</h5>
-                            <p class="card-text">Paracétamol, Ventoline</p>
-                            <h5 class="card-title">Allergies</h5>
-                            <p class="card-text">Arachides</p>
-                        </div>
+                </div>
+                <div class="col-md-6 text-center fade-in">
+                    <div class="feature-card">
+                        <i class="fas fa-calendar-alt feature-icon"></i>
+                        <h4>Planification de Rendez-vous</h4>
+                        <ul>
+                            <li>Prendre et gérer vos rendez-vous médicaux</li>
+                            <li>Recevez des rappels pour vos consultations</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
+    <h2>Prendre un rendez-vous avec Dr. {{ medecin.utilisateurs.nom }} {{ medecin.utilisateurs.prenom }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="date">Date :</label>
+        <input type="date" id="date" name="date" required>
 
-        <!-- Section Prendre un Rendez-vous -->
-        <section class="mb-5">
-            <h2 class="mb-3">Prendre un Rendez-vous</h2>
-            <div class="card p-4">
-                <form id="appointmentForm">
-                    <div class="mb-3">
-                        <label for="doctor" class="form-label">Choisir un médecin</label>
-                        <select class="form-select" id="doctor" name="doctor" required>
-                            <option value="" disabled selected>-- Sélectionner un médecin --</option>
-                            <option value="Dr. Dupont">Dr. Dupont</option>
-                            <option value="Dr. Fatima">Dr. Fatima</option>
-                            <option value="Dr. Leroy">Dr. Leroy</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="appointmentDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="appointmentTime" class="form-label">Heure</label>
-                        <input type="time" class="form-control" id="appointmentTime" name="appointmentTime" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Confirmer</button>
-                </form>
-            </div>
-        </section>
+        <label for="heure">Heure :</label>
+        <input type="time" id="heure" name="heure" required>
 
-        <!-- Section Rendez-vous -->
-        <section class="mb-5">
-            <h2 class="mb-3">Mes Rendez-vous</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="{%static 'images/docteur1.avif'%}" class="card-img-top" alt="Rendez-vous">
-                        <div class="card-body">
-                            <h5 class="card-title">2024-12-10 15:30</h5>
-                            <p class="card-text">Dr. Dupont</p>
-                            <p><span class="badge bg-success">Confirmé</span></p>
-                            <a href="#" class="btn btn-primary">Modifier</a>
-                            <a href="#" class="btn btn-danger">Annuler</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="{%static 'images/docteresse1.webp'%}" class="card-img-top" alt="Rendez-vous">
-                        <div class="card-body">
-                            <h5 class="card-title">2024-12-15 10:00</h5>
-                            <p class="card-text">Dr. Fatima</p>
-                            <p><span class="badge bg-warning text-dark">En attente</span></p>
-                            <a href="#" class="btn btn-primary">Modifier</a>
-                            <a href="#" class="btn btn-danger">Annuler</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <label for="motif">Motif :</label>
+        <textarea id="motif" name="motif"></textarea>
 
-        <!-- Section Notifications -->
-        <section>
-            <h2 class="mb-3">Mes Notifications</h2>
-            <ul class="list-group">
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="bi bi-bell-fill text-primary me-3"></i>
-                    <span>2024-12-05 09:00 : N'oubliez pas votre rendez-vous du 10/12/2024.</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="bi bi-bell-fill text-primary me-3"></i>
-                    <span>2024-12-06 12:00 : Prenez votre médicament Paracétamol à 20:00.</span>
-                </li>
-            </ul>
-        </section>
-    </div>
+        <button type="submit" class="btn btn-primary">Confirmer</button>
+    </form>
 
-    <!-- Bootstrap JS -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- About Section -->
+    <section id="about" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center fade-in">À propos</h2>
+            <p class="text-center mt-4 fade-in">
+                goodDoctor est une plateforme conçue pour simplifier la communication entre patients et médecins, tout en offrant des outils de gestion performants pour un suivi optimal de la santé.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3">
+        <p class="mb-0">© 2024 goodDoctor. Tous droits réservés.</p>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Script JavaScript pour la gestion des rendez-vous -->
-    <script>
-        document.getElementById("appointmentForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Empêche le rechargement de la page
-
-            // Récupération des données du formulaire
-            const doctor = document.getElementById("doctor").value;
-            const appointmentDate = document.getElementById("appointmentDate").value;
-            const appointmentTime = document.getElementById("appointmentTime").value;
-
-            // Vérification que tous les champs sont remplis
-            if (!doctor || !appointmentDate || !appointmentTime) {
-                alert("Veuillez remplir tous les champs !");
-                return;
-            }
-
-            // Construction des données à envoyer
-            const appointmentData = {
-                doctor: doctor,
-                date: appointmentDate,
-                time: appointmentTime,
-            };
-
-            // Simulation d'envoi au backend
-            console.log("Données envoyées :", appointmentData);
-
-            // Appel AJAX (remplacez 'backend-url' par votre endpoint réel)
-            fetch("https://example.com/api/appointments", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(appointmentData),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error("Erreur lors de l'envoi des données !");
-                })
-                .then((data) => {
-                    console.log("Réponse du serveur :", data);
-                    alert("Votre rendez-vous a été pris avec succès !");
-                    // Réinitialisation du formulaire
-                    document.getElementById("appointmentForm").reset();
-                })
-                .catch((error) => {
-                    console.error("Erreur :", error);
-                    alert("Une erreur s'est produite. Veuillez réessayer.");
-                });
-        });
-    </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-{% load static %}
+{%load static%}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,95 +6,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="goodDoctor est une plateforme innovante pour connecter patients et médecins.">
     <meta name="keywords" content="santé, médecins, patients, rendez-vous, gestion médicale">
-    <title>Plateforme Santé</title>
+    <title>GoodDoctor - Votre santé, simplifiée</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'home.css' %}">
     <style>
+        /* Global */
+        body {
+            font-family: 'Arial', sans-serif;
+        }
         .hero-section {
             background-image: url("{% static 'images/home.jpeg' %}");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            position: relative;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+        .hero-section .container {
+            z-index: 2;
+        }
+        .fade-in {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .feature-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: scale(1.05);
+        }
+        .testimonials-section {
+            background: #f0f8ff;
+            padding: 50px 0;
+        }
+        .testimonial-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background: #0d6efd;
+            color: white;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #007bff; /* Couleur des icônes */
+        }
+        .btn-light:hover, .btn-outline-light:hover {
+            transform: translateY(-5px);
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="#">goodDoctor</a>
+            <a class="navbar-brand" href="#">GoodDoctor</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#features">Fonctionnalités</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">À propos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="#features">Fonctionnalités</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">À propos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Témoignages</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                 </ul>
+                <!-- Boutons Connexion et Inscription -->
+                <div class="d-flex ms-lg-3">
+                    <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Connexion</a>
+                    <a href="{% url 'register' %}" class="btn btn-light">Inscription</a>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero-section text-center py-5">
+    <header class="hero-section">
         <div class="container">
-            <h1 class="display-4 fade-in" style="color: white;">Bienvenue sur goodDoctor</h1>
-            <p class="lead fade-in" style="color: white;">Une plateforme innovante pour connecter patients et médecins.</p>
-            <div class="search-bar">
-                <input type="text" class="form-control" placeholder="Rechercher un médecin ou une spécialité...">
-            </div>
-            <a href="{% url 'register' %}" class="btn btn-light btn-lg fade-in mt-3">Inscrivez-vous</a>
-            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg fade-in mt-3">Connexion</a>
+            <h1 class="display-4 fade-in">Bienvenue sur GoodDoctor</h1>
+            <p class="lead fade-in">Connecter patients et médecins pour une gestion de santé simplifiée.</p>
+            <!-- Barre de recherche -->
+            <form class="d-flex mt-4 fade-in" method="post" action="{% url 'recherche_medecin' %}">
+                {% csrf_token %}
+                <input class="form-control me-2" type="text" name="specialite" placeholder="Rechercher par spécialité" aria-label="Search">
+                <button class="btn btn-light" type="submit">Rechercher</button>
+            </form>
         </div>
     </header>
 
     <!-- Features Section -->
     <section id="features" class="py-5">
         <div class="container">
-            <h2 class="text-center fade-in">Fonctionnalités</h2>
-            <div class="row mt-4">
-                <div class="col-md-6 text-center fade-in">
+            <h2 class="text-center">Nos Fonctionnalités</h2>
+            <div class="row mt-5">
+                <div class="col-md-4 text-center">
                     <div class="feature-card">
                         <i class="fas fa-user-md feature-icon"></i>
-                        <h4>Gestion des Profils Utilisateurs</h4>
-                        <ul>
-                            <li>Inscription et gestion des informations pour patients et médecins</li>
-                            <li>Suivi des antécédents médicaux et gestion des horaires</li>
-                        </ul>
+                        <h4>Gestion des Profils</h4>
+                        <p>Création et gestion des comptes pour patients et médecins.</p>
                     </div>
                 </div>
-                <div class="col-md-6 text-center fade-in">
+                <div class="col-md-4 text-center">
                     <div class="feature-card">
                         <i class="fas fa-calendar-alt feature-icon"></i>
-                        <h4>Planification et Notifications</h4>
-                        <ul>
-                            <li>Prise et gestion des rendez-vous</li>
-                            <li>Rappels de rendez-vous et notifications</li>
-                        </ul>
+                        <h4>Planification</h4>
+                        <p>Gestion intuitive des rendez-vous et rappels automatiques.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="feature-card">
+                        <i class="fas fa-notes-medical feature-icon"></i>
+                        <h4>Suivi Médical</h4>
+                        <p>Conservation des antécédents pour un suivi personnalisé.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="bg-light py-5">
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
         <div class="container">
-            <h2 class="text-center fade-in">À propos</h2>
-            <p class="text-center mt-4 fade-in">
-                goodDoctor est une plateforme conçue pour simplifier la communication entre patients et médecins, tout en offrant des outils de gestion performants pour un suivi optimal de la santé.
-            </p>
+            <h2 class="text-center">Ce que disent nos utilisateurs</h2>
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <p>"GoodDoctor m'a permis de trouver un médecin en quelques clics. Simple et rapide !"</p>
+                        <h5>- Marie L.</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <p>"Grâce à cette plateforme, je gère mes consultations efficacement."</p>
+                        <h5>- Dr. Ahmed B.</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <p>"Une solution parfaite pour connecter patients et praticiens."</p>
+                        <h5>- Jean D.</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-primary text-white text-center py-3">
-        <p class="mb-0">© 2024 goodDoctor. Tous droits réservés.</p>
+    <footer class="text-center py-4">
+        <p>© 2024 goodDoctor. Tous droits réservés. | <a href="#" class="text-white">Politique de confidentialité</a></p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
