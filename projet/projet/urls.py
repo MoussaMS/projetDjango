@@ -35,5 +35,7 @@ urlpatterns = [
     path('dashboard/responsable/', views.dashboard_responsable, name='dashboard_responsable'),
     path('recherche_medecin/', views.recherche_medecin, name='recherche_medecin'),
     path('prendre_rendez_vous/<int:medecin_id>/', views.prendre_rendez_vous, name='prendre_rendez_vous'),
+    path('get-medecins/', views.get_medecins_by_specialite, name='get_medecins_by_specialite'),
+    path('get-medecins/', views.get_medecins, name='get_medecins'),
 
 ]

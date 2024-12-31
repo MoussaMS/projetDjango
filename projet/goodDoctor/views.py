@@ -1,52 +1,92 @@
-from django.shortcuts import render, redirect
+from django.db.models import Q, Count
+from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
-from .models import Utilisateurs, RendezVous
-from .models import Medecin
+from .models import Utilisateurs, RendezVous, DisponibiliteMedecin, Medecin
 from django.contrib.auth.hashers import make_password
 #from django.shortcuts import HttpResponse
 #from django.http import HttpResponse
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
+
 
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
 
+
 @login_required
 def patient_dashboard(request):
-    print("Email utilisateur connecté :", request.user.email)  # Debug
-    utilisateur = Utilisateurs.objects.get(email=request.user.email)  # Ligne problématique
-    rendez_vous = RendezVous.objects.filter(patient=utilisateur).order_by('-date_heure')
-    medecins = Medecin.objects.all()
+    try:
+        utilisateur_id = request.session.get('utilisateur_id')
+        utilisateur = Utilisateurs.objects.get(id=utilisateur_id)
 
-    # Gestion du formulaire
+    #utilisateur = Utilisateurs.objects.get(email=request.user.email)  # Utilisateur connecté
+    except Utilisateurs.DoesNotExist:
+        messages.error(request, "Utilisateur non trouvé.")
+        return redirect('login')
+
+    # Récupérer les spécialités uniques à partir des médecins
+    specialites = Medecin.objects.values_list('specialite', flat=True).distinct()
+
+    # Récupérer l'ID du médecin depuis la requête GET (si disponible)
+    medecin_id = request.session.get('medecin_id')
+    medecin = None
+    if medecin_id:
+        try:
+            medecin=Medecin.objects.get(id=medecin_id)
+        except Medecin.DoesNotExist:
+            messages.error(request, "médecin non trouvé")
+            return redirect('recherche_medecin')
+
+    # Récupérer les rendez-vous actuels de l'utilisateur
+    rendez_vous = RendezVous.objects.filter(patient=utilisateur).order_by('-date_heure')
+
+    # Vérifier si une spécialité est sélectionnée
+    specialite_selected = request.GET.get('specialite')
+    if specialite_selected:
+        # Filtrer les médecins par spécialité
+        medecins = Medecin.objects.filter(specialite=specialite_selected)
+    else:
+        # Si aucune spécialité n'est sélectionnée, afficher tous les médecins
+        medecins = Medecin.objects.all()
+
     if request.method == 'POST':
+        # Récupérer les informations du formulaire
         specialite = request.POST.get('specialite')
         date = request.POST.get('date')
         heure = request.POST.get('heure')
         motif = request.POST.get('motif')
+        medecin_id = request.POST.get('medecin_id')
 
-        try:
-            medecin = Medecin.objects.get(id=specialite)
-            RendezVous.objects.create(
-                patient=utilisateur,
-                medecin=medecin,
-                date_heure=f"{date} {heure}",
-                motif=motif,
-                statut='en attente'
-            )
-            messages.success(request, "Rendez-vous pris avec succès.")
-        except Medecin.DoesNotExist:
-            messages.error(request, "Médecin ou spécialité invalide.")
+        # Vérifier que tous les champs sont remplis
+        if not all([specialite, date, heure, motif, medecin_id]):
+            messages.error(request, "Veuillez remplir tous les champs.")
+        else:
+            try:
+                # Récupérer le médecin sélectionné
+                medecin = Medecin.objects.get(id=medecin_id)
+                date_heure = f"{date} {heure}"
+                RendezVous.objects.create(
+                    patient=utilisateur,
+                    medecin=medecin,
+                    date_heure=date_heure,
+                    motif=motif,
+                    statut='en attente'
+                )
+                messages.success(request, "Rendez-vous pris avec succès.")
+            except Medecin.DoesNotExist:
+                messages.error(request, "Médecin ou spécialité invalide.")
 
         return redirect('patient_dashboard')
 
     return render(request, 'patient_dashboard.html', {
         'rendez_vous': rendez_vous,
         'medecins': medecins,
+        'specialites': specialites,
+        'utilisateur': utilisateur,
     })
 
 
@@ -68,6 +108,7 @@ def medecin_dashboard(request):
     context = {
         'medecin': medecin,
         'rendez_vous': rendez_vous,
+
     }
 
     return render(request, 'medecin_dashboard.html', context)
@@ -186,16 +227,22 @@ def register_medecin(request):
 
     return render(request, 'register_medecin.html')
 
+# modif du 29/12
 def recherche_medecin(request):
-    if request.method == 'POST':
-        specialite = request.POST.get('specialite')
-        medecins = Medecin.objects.filter(specialite__icontains=specialite)
-        context = {
-            'medecins': medecins,
-            'specialite': specialite,
-        }
-        return render(request, 'recherche_medecin.html', context)
-    return redirect('home')
+    query = request.POST.get('query', None)
+    medecins = []
+
+    if query:
+        # Rechercher dans les noms et les spécialités
+        medecins = Medecin.objects.filter(
+            Q(utilisateurs__nom__icontains=query) |
+            Q(utilisateurs__prenom__icontains=query) |
+            Q(specialite__icontains=query)
+        ).annotate(num_rendez_vous=Count('rendez_vous_medecin')).order_by('num_rendez_vous', 'rendez_vous_medecin__date_heure')
+    return render(request, 'recherche_medecin.html', {
+        'medecins': medecins,
+        'query': query
+    })
 
 @login_required
 def prendre_rendez_vous(request, medecin_id):
@@ -221,3 +268,30 @@ def prendre_rendez_vous(request, medecin_id):
         'medecin': medecin,
     }
     return render(request, 'prendre_rendez_vous.html', context)
+
+#modif du 30/12
+@login_required
+def get_medecins_by_specialite(request):
+    specialite_id = request.GET.get('specialite_id')
+    if not specialite_id:
+        return JsonResponse({'error': 'Spécialité invalide.'}, status=400)
+
+    medecins = Medecin.objects.filter(specialite=specialite_id).values('id', 'nom')
+    return JsonResponse({'medecins': list(medecins)})
+
+from django.http import JsonResponse
+
+@login_required
+def get_medecins(request):
+    specialite_id = request.GET.get('specialite_id')  # Récupérer l'ID de la spécialité
+    if not specialite_id:
+        return JsonResponse({'error': 'Spécialité non spécifiée'}, status=400)
+
+    # Récupérer les médecins correspondant à cette spécialité
+    medecins = Medecin.objects.filter(specialite=specialite_id).values('id', 'nom')
+
+    if not medecins.exists():
+        return JsonResponse({'error': 'Aucun médecin trouvé'}, status=404)
+
+    return JsonResponse({'medecins': list(medecins)})
+

@@ -80,9 +80,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'monprojet',
         'USER' : 'root',
-        'PASSWORD' : 'Gory',
+        'PASSWORD' : 'root',
         'HOST' : 'localhost',
-        'PORT' : '3306',
+        'PORT' : '3307',
     }
 }
 
@@ -105,6 +105,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+#AUTH_USER_MODEL = 'goodDoctor.Utilisateurs'  # Remplace 'yourapp' par le nom de ton application
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
