@@ -116,11 +116,36 @@
             <!-- Barre de recherche -->
             <form class="d-flex mt-4 fade-in" method="post" action="{% url 'recherche_medecin' %}">
                 {% csrf_token %}
-                <input class="form-control me-2" type="text" name="specialite" placeholder="Rechercher par spécialité" aria-label="Search">
+                <input class="form-control me-2" type="text" name="query" placeholder="Rechercher un médecin par nom ou spécialité" aria-label="Search" required>
                 <button class="btn btn-light" type="submit">Rechercher</button>
             </form>
         </div>
     </header>
+    <!-- Section des médecins -->
+    <section class="medecins py-5">
+        <div class="container">
+            <h2 class="text-center">Nos Médecins</h2>
+            <div class="row mt-5">
+                {% for med in medecins %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <!-- Image du médecin, si disponible -->
+                            <img src="{% static 'images/default-medecin.jpg' %}" class="card-img-top" alt="Image du médecin">
+                            <div class="card-body">
+                                <!-- Nom et prénom du médecin -->
+                                <h5 class="card-title">{{ med.utilisateurs.nom }} {{ med.utilisateurs.prenom }}</h5>
+                                <!-- Spécialité du médecin -->
+                                <p class="card-text">Spécialité : {{ med.specialite }}</p>
+                                <!-- Lien pour prendre un rendez-vous -->
+                                <a href="{% url 'patient_dashboard' %}?medecin_id={{ med.id }}" class="btn btn-primary">Prendre rendez-vous</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
 
     <!-- Features Section -->
     <section id="features" class="py-5">

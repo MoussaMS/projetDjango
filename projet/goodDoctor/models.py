@@ -1,24 +1,44 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+
+class UtilisateurManager(BaseUserManager):
+    def create_user(self, email, mot_de_passe=None, **extra_fields):
+        if not email:
+            raise ValueError("L'email est obligatoire")
+        email = self.normalize_email(email)
+        utilisateur = self.model(email=email, **extra_fields)
+        utilisateur.set_password(mot_de_passe)
+        utilisateur.save(using=self._db)
+        return utilisateur
+
+    def create_superuser(self, email, mot_de_passe=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, mot_de_passe, **extra_fields)
 
 #Table Utilisateurs
-class Utilisateurs(models.Model):
+class Utilisateurs(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('patient', 'Patient'),
         ('medecin', 'Médecin'),
         ('responsable', 'Responsable')
     ]
+    email = models.EmailField(unique=True)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    mot_de_passe = models.CharField(max_length=255)
     role = models.CharField(max_length=11, choices=ROLE_CHOICES)
-    numero_de_telephone = models.CharField(max_length=20, blank=True, null=True)
-    adresse = models.TextField(blank=True, null=True)
-    date_de_naissance = models.DateField(blank=True, null=True)
 
-    def __str__(self) :
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = UtilisateurManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nom', 'prenom']
+
+    def __str__(self):
         return f"{self.nom} {self.prenom} ({self.role})"
-
+    
 # Table Profils_Medicaux
 class ProfilMedical(models.Model):
     utilisateurs = models.OneToOneField(Utilisateurs, on_delete=models.CASCADE, related_name='profil_medical')
@@ -138,3 +158,13 @@ class HistoriqueAcces(models.Model):
 
     def _str_(self):
         return f"Accès de {self.utilisateurs} à {self.date_heure}"
+    
+# Table Historique_Medical
+class HistoriqueMedical(models.Model):
+    patient = models.ForeignKey(Utilisateurs, on_delete=models.CASCADE, related_name='historique_medical')
+    date = models.DateTimeField(auto_now_add=True)
+    description = models.TextField()  # Expliquer les éléments médicaux importants
+    medecin_responsable = models.ForeignKey(Medecin, on_delete=models.SET_NULL, null=True, related_name='historiques_crees')
+
+    def __str__(self):
+        return f"Historique médical de {self.patient.nom} {self.patient.prenom} (par {self.medecin_responsable})"
