@@ -27,6 +27,7 @@ class Utilisateurs(AbstractBaseUser, PermissionsMixin):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     role = models.CharField(max_length=11, choices=ROLE_CHOICES)
+    telephone = models.CharField(max_length=15, blank=True, null=True)  # Nouveau champ
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

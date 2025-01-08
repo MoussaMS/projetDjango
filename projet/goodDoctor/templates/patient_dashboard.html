@@ -26,6 +26,11 @@
                     <li class="nav-item">
                         <a href="{% url 'home' %}" class="nav-link active">Retour à l'accueil</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{% url 'logout' %}" class="nav-link">
+                            <img src="{% static 'images/logout.svg' %}" alt="Déconnexion" style="width: 27px; height: 24px; filter: invert(100%);">
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -40,61 +45,61 @@
     </header>
 
     <!-- Rendez-vous Section -->
-   <section class="py-5">
-    <div class="container">
-        <h2 class="text-center">Vos Rendez-vous</h2>
-
-        {% if rendez_vous %}
-            <div class="row mt-4">
-                {% for rv in rendez_vous %}
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Rendez-vous</h5>
-                                <p><strong>Date :</strong> {{ rv.date_heure|date:"d/m/Y H:i" }}</p>
-                                <p><strong>Motif :</strong> {{ rv.motif }}</p>
-                                <p><strong>Statut :</strong> {{ rv.statut }}</p>
-                                <p><strong>Médecin :</strong> Dr. {{ rv.medecin.utilisateurs.prenom }} {{ rv.medecin.utilisateurs.nom }}</p>
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center">Vos Rendez-vous</h2>
+            {% if rendez_vous %}
+                <div class="row mt-4">
+                    {% for rv in rendez_vous %}
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Rendez-vous</h5>
+                                    <p><strong>Date :</strong> {{ rv.date_heure|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Motif :</strong> {{ rv.motif }}</p>
+                                    <p><strong>Statut :</strong> {{ rv.statut }}</p>
+                                    <p><strong>Médecin :</strong> Dr. {{ rv.medecin.utilisateurs.prenom }} {{ rv.medecin.utilisateurs.nom }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-center">Vous n'avez pas encore de rendez-vous prévu.</p>
-        {% endif %}
-    </div>
-</section>
-   <h3>Prendre un rendez-vous</h3>
-<form method="post" class="mt-4">
-    {% csrf_token %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">Vous n'avez pas encore de rendez-vous prévu.</p>
+            {% endif %}
+        </div>
+    </section>
 
-    <!-- Afficher le médecin sélectionné -->
-    <div class="mb-3">
-        <label for="medecin">Médecin sélectionné :</label>
-        <input type="text" class="form-control" id="medecin" value="Dr. {{ medecin.utilisateurs.nom }} {{ medecin.utilisateurs.prenom }}" readonly>
-    </div>
-
-    <!-- Date et Heure -->
-    <div class="mb-3">
-        <label for="date">Date :</label>
-        <input type="date" id="date" name="date" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label for="heure">Heure :</label>
-        <input type="time" id="heure" name="heure" class="form-control" required>
-    </div>
-
-    <!-- Motif -->
-    <div class="mb-3">
-        <label for="motif">Motif :</label>
-        <textarea id="motif" name="motif" class="form-control" rows="3" required></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Confirmer</button>
-</form>
-
-
+    <!-- Médecins Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center">Nos Médecins</h2>
+            {% if medecins %}
+                <div class="row mt-4">
+                    {% for medecin in medecins %}
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Dr. {{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}</h5>
+                                    <p><strong>Spécialité :</strong> {{ medecin.specialite }}</p>
+                                    <p><strong>Disponibilités :</strong></p>
+                                    <ul>
+                                        {% for dispo in disponibilites %}
+                                            {% if dispo.medecin.id == medecin.id %}
+                                                <li>{{ dispo.jour }} : {{ dispo.heure_de_debut|time:"H:i" }} - {{ dispo.heure_de_fin|time:"H:i" }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">Aucun médecin disponible.</p>
+            {% endif %}
+        </div>
+    </section>
 
     <!-- Messages de confirmation -->
     {% if messages %}
@@ -121,44 +126,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const specialiteSelect = document.getElementById('specialite');
-    const medecinSelect = document.getElementById('medecin');
-
-    specialiteSelect.addEventListener('change', function () {
-        const specialiteId = this.value;
-
-        // Réinitialiser les options des médecins
-        medecinSelect.innerHTML = '<option value="" selected disabled>-- Chargement... --</option>';
-
-        if (specialiteId) {
-            fetch(`/get-medecins/?specialite_id=${specialiteId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        medecinSelect.innerHTML = '<option value="" selected disabled>-- Aucun médecin trouvé --</option>';
-                        return;
-                    }
-
-                    // Ajouter les options des médecins
-                    medecinSelect.innerHTML = '<option value="" selected disabled>-- Sélectionnez un médecin --</option>';
-                    data.medecins.forEach(medecin => {
-                        const option = document.createElement('option');
-                        option.value = medecin.id;
-                        option.textContent = `Dr. ${medecin.nom}`;
-                        medecinSelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des médecins :', error);
-                    medecinSelect.innerHTML = '<option value="" selected disabled>-- Erreur --</option>';
-                });
-        }
-    });
-});
-
-</script>
-
 </body>
 </html>

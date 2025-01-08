@@ -28,6 +28,7 @@ urlpatterns = [
     path('register/', views.register_patient, name='register'),
     path('register_medecin/', views.register_medecin, name='register_medecin'),
     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),  # Pour la déconnexion
     # path('medecin_dashboard/', views.medecin_dashboard, name='medecin_dashboard'),
     # path('patient_dashboard/', views.patient_dashboard, name='patient_dashboard'),
     path('dashboard/patient/', views.patient_dashboard, name='patient_dashboard'),

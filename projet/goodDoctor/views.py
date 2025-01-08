@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 #from django.contrib.auth.hashers import check_password
 from django.contrib import messages
-from .models import Utilisateurs, RendezVous
+from .models import Utilisateurs, RendezVous, HistoriqueMedical, DisponibiliteMedecin
 from .models import Medecin
 #from django.contrib.auth.hashers import make_password
 #from django.shortcuts import HttpResponse
@@ -10,112 +10,117 @@ from .models import Medecin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 #from django.contrib.auth import authenticate
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 # import 06/01
 from django.db.models import Q, Count
-
+from django.db.models import Prefetch
+import re
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 def home(request):
     medecins = Medecin.objects.select_related('utilisateurs')  # Optimisation pour éviter les requêtes multiples
     return render(request, 'home.html', {'medecins': medecins})
 
+
+@never_cache
 @login_required
 def patient_dashboard(request):
-    try:
-        utilisateur_id = request.session.get('utilisateur_id')
-        utilisateur = Utilisateurs.objects.get(id=utilisateur_id)
+    utilisateur = request.user  # Utilisateur connecté via @login_required
 
-    #utilisateur = Utilisateurs.objects.get(email=request.user.email)  # Utilisateur connecté
-    except Utilisateurs.DoesNotExist:
-        messages.error(request, "Utilisateur non trouvé.")
+    # Vérifiez que l'utilisateur est un patient
+    if utilisateur.role != 'patient':
+        messages.error(request, "Accès réservé aux patients.")
         return redirect('login')
 
-    # Récupérer les spécialités uniques à partir des médecins
-    specialites = Medecin.objects.values_list('specialite', flat=True).distinct()
-
-    # Récupérer l'ID du médecin depuis la requête GET (si disponible)
-    medecin_id = request.session.get('medecin_id')
-    medecin = None
-    if medecin_id:
-        try:
-            medecin=Medecin.objects.get(id=medecin_id)
-        except Medecin.DoesNotExist:
-            messages.error(request, "médecin non trouvé")
-            return redirect('recherche_medecin')
-
-    # Récupérer les rendez-vous actuels de l'utilisateur
+    # Récupérer les rendez-vous actuels de l'utilisateur (patient)
     rendez_vous = RendezVous.objects.filter(patient=utilisateur).order_by('-date_heure')
 
-    # Vérifier si une spécialité est sélectionnée
-    specialite_selected = request.GET.get('specialite')
-    if specialite_selected:
-        # Filtrer les médecins par spécialité
-        medecins = Medecin.objects.filter(specialite=specialite_selected)
+    # Vérifier si un médecin a été sélectionné avant la connexion
+    medecin_id = request.session.get('selected_medecin_id')
+    if medecin_id:
+        try:
+            medecin = Medecin.objects.get(id=medecin_id)
+            medecins = [medecin]
+        except Medecin.DoesNotExist:
+            messages.error(request, "Médecin sélectionné introuvable.")
+            medecins = Medecin.objects.all()
     else:
-        # Si aucune spécialité n'est sélectionnée, afficher tous les médecins
         medecins = Medecin.objects.all()
 
-    if request.method == 'POST':
-        # Récupérer les informations du formulaire
-        specialite = request.POST.get('specialite')
-        date = request.POST.get('date')
-        heure = request.POST.get('heure')
-        motif = request.POST.get('motif')
-        medecin_id = request.POST.get('medecin_id')
+    # Récupérer les disponibilités des médecins
+    disponibilites = DisponibiliteMedecin.objects.filter(medecin__in=medecins)
 
-        # Vérifier que tous les champs sont remplis
-        if not all([specialite, date, heure, motif, medecin_id]):
-            messages.error(request, "Veuillez remplir tous les champs.")
-        else:
-            try:
-                # Récupérer le médecin sélectionné
-                medecin = Medecin.objects.get(id=medecin_id)
-                date_heure = f"{date} {heure}"
-                RendezVous.objects.create(
-                    patient=utilisateur,
-                    medecin=medecin,
-                    date_heure=date_heure,
-                    motif=motif,
-                    statut='en attente'
-                )
-                messages.success(request, "Rendez-vous pris avec succès.")
-            except Medecin.DoesNotExist:
-                messages.error(request, "Médecin ou spécialité invalide.")
-
-        return redirect('patient_dashboard')
-
-    return render(request, 'patient_dashboard.html', {
+    context = {
+        'utilisateur': utilisateur,
         'rendez_vous': rendez_vous,
         'medecins': medecins,
-        'specialites': specialites,
-        'utilisateur': utilisateur,
-    })
+        'disponibilites': disponibilites,
+    }
+
+    return render(request, 'patient_dashboard.html', context)
 
 
+@never_cache # Cela permet d'empêcher la mise en cache des réponses HTTP pour quand se déconnecte, on ne plus retourner à la page
 @login_required
 def medecin_dashboard(request):
-    if request.session.get('utilisateur_role') != 'medecin':
+    # Vérifier que l'utilisateur connecté est un médecin
+    utilisateur = request.user
+    if utilisateur.role != 'medecin':
         return HttpResponseForbidden("Accès réservé aux médecins.")
 
-    # Récupérer l'utilisateur connecté
-    utilisateur_id = request.session.get('utilisateur_id')
-    utilisateur = Utilisateurs.objects.get(id=utilisateur_id)
+    try:
+        # Récupérer les informations du médecin
+        medecin = Medecin.objects.get(utilisateurs=utilisateur)
+    except Medecin.DoesNotExist:
+        messages.error(request, "Profil médecin introuvable.")
+        return redirect('login')
 
-    # Récupérer les informations du médecin
-    medecin = Medecin.objects.get(utilisateurs=utilisateur)
-
-    # Récupérer les rendez-vous du médecin
+    # Récupérer les rendez-vous et historiques médicaux
     rendez_vous = RendezVous.objects.filter(medecin=medecin).order_by('-date_heure')
+    historiques_medicaux = (
+        HistoriqueMedical.objects.filter(patient__rendez_vous_patient__medecin=medecin)
+        .distinct()
+        .order_by('-date')
+    )
+
+    if request.method == 'POST':
+        # Gestion de la mise à jour du téléphone
+        telephone = request.POST.get('telephone')
+        if telephone:
+            if not re.match(r'^\+?\d{7,15}$', telephone):
+                messages.error(request, "Veuillez entrer un numéro de téléphone valide.")
+            else:
+                utilisateur.telephone = telephone
+                utilisateur.save()
+                messages.success(request, "Votre numéro de téléphone a été mis à jour avec succès.")
+
+        # Gestion de l'ajout d'une disponibilité
+        jour = request.POST.get('jour')
+        heure_de_debut = request.POST.get('heure_de_debut')
+        heure_de_fin = request.POST.get('heure_de_fin')
+
+        if jour and heure_de_debut and heure_de_fin:
+            try:
+                DisponibiliteMedecin.objects.create(
+                    medecin=medecin,
+                    jour=jour,
+                    heure_de_debut=heure_de_debut,
+                    heure_de_fin=heure_de_fin
+                )
+                messages.success(request, "Votre disponibilité a été ajoutée avec succès.")
+            except Exception as e:
+                messages.error(request, f"Erreur lors de l'ajout de la disponibilité: {str(e)}")
 
     context = {
         'medecin': medecin,
         'rendez_vous': rendez_vous,
+        'historiques_medicaux': historiques_medicaux,
     }
 
     return render(request, 'medecin_dashboard.html', context)
 
-
+@never_cache
 @login_required
 def dashboard_responsable(request):
     if request.user.role != 'responsable':
@@ -157,6 +162,12 @@ def login_view(request):
             messages.error(request, "Email ou mot de passe incorrect.")
 
     return render(request, 'login.html')
+
+
+# Pour la déconnexion
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 
 def register_patient(request):

@@ -321,7 +321,7 @@
             <span class="license"><i class="fas fa-id-card"></i> Licence : {{ medecin.numero_de_licence }}</span>
         </div>
         <div class="logout-container">
-            <button class="Btn">
+            <button class="Btn" id="logoutBtn">
                 <div class="sign">
                   <svg viewBox="0 0 512 512">
                     <path
@@ -344,34 +344,36 @@
                 <li><a href="#messages"><i class="fas fa-envelope"></i> Messages</a></li>
                 <li><a href="#reviews"><i class="fas fa-star"></i> Évaluations</a></li>
                 <li><a href="#availability"><i class="fas fa-clock"></i> Disponibilités</a></li>
+                <li><a href="#HistoriqueMedical"><i class="fas fa-clock"></i> Historiques Médicales</a></li>
             </ul>
         </aside>
 
         <main class="content">
-            <section id="profile" class="section active">
+            <section id="profile" class="section">
                 <h2>Mon Profil</h2>
-                <form class="profile-form">
+                <form class="profile-form" method="POST">
+                    {% csrf_token %}
                     <div class="form-group">
                         <label>Nom Complet</label>
-                        <input type="text" value="{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}">
+                        <input type="text" value="{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}" readonly>
                     </div>
                     <div class="form-group">
                         <label>Spécialité</label>
-                        <input type="text" value="{{ medecin.specialite }}">
+                        <input type="text" value="{{ medecin.specialite }}" readonly>
                     </div>
                     <div class="form-group">
                         <label>Téléphone</label>
-                        <input type="text" value="{{ medecin.utilisateurs.telephone }}">
+                        <input type="text" name="telephone" value="{{ medecin.utilisateurs.telephone }}">
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" value="{{ medecin.utilisateurs.email }}">
+                        <input type="email" value="{{ medecin.utilisateurs.email }}" readonly>
                     </div>
                     <button type="submit" class="btn">Mettre à jour</button>
                 </form>
-            </section>
+            </section>            
 
-            <section id="appointments" class="section">
+            <section id="appointments" class="section active">
                 <h2>Mes Rendez-vous</h2>
                 <div class="appointment-list">
                     {% for rendez_vous in rendez_vous %}
@@ -400,20 +402,60 @@
 
             <section id="availability" class="section">
                 <h2>Disponibilités</h2>
-                <form class="availability-form">
-                    <label>Jour</label>
-                    <select>
-                        <option>Lundi</option>
-                        <option>Mardi</option>
-                        <option>Mercredi</option>
-                        <option>Jeudi</option>
-                        <option>Vendredi</option>
-                    </select>
-                    <label>Heure de début</label>
-                    <input type="time">
-                    <label>Heure de fin</label>
-                    <input type="time">
-                    <button class="btn">Ajouter</button>
+                <form class="availability-form" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="jour">Jour</label>
+                        <select name="jour" required>
+                            <option value="lundi">Lundi</option>
+                            <option value="mardi">Mardi</option>
+                            <option value="mercredi">Mercredi</option>
+                            <option value="jeudi">Jeudi</option>
+                            <option value="vendredi">Vendredi</option>
+                            <option value="samedi">Samedi</option>
+                            <option value="dimanche">Dimanche</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="heure_de_debut">Heure de début</label>
+                        <input type="time" name="heure_de_debut" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="heure_de_fin">Heure de fin</label>
+                        <input type="time" name="heure_de_fin" required>
+                    </div>
+                    <button type="submit" class="btn">Ajouter</button>
+                </form>
+            
+                <h3>Mes disponibilités :</h3>
+                <ul>
+                    {% for dispo in medecin.disponibilites.all %}
+                        <li>{{ dispo.jour }} : {{ dispo.heure_de_debut|time:"H:i" }} - {{ dispo.heure_de_fin|time:"H:i" }}</li>
+                    {% empty %}
+                        <p>Aucune disponibilité ajoutée.</p>
+                    {% endfor %}
+                </ul>
+            </section>
+            
+            
+
+            <section  id="HistoriqueMedical" class="section">
+                <h2>Historiques Médicales</h2>
+                <form action="HistoriqueMedical">
+                    <div>
+                        {% for historique in historiques_medicaux %}
+                        <div>
+                            <li>
+                                <strong>Patient :</strong> {{ historique.patient.nom }} {{ historique.patient.prenom }}<br>
+                                <strong>Date :</strong> {{ historique.date|date:"d/m/Y H:i" }}<br>
+                                <strong>Description :</strong> {{ historique.description }}<br>
+                                <strong>Médecin Responsable :</strong> {{ historique.medecin_responsable.utilisateurs.nom }} {{ historique.medecin_responsable.utilisateurs.prenom }}
+                            </li>
+                        {% empty %}
+                            <p>Aucun historique médical disponible.</p>
+                        {% endfor %}
+                        </div>
+                    </div>
                 </form>
             </section>
         </main>
@@ -434,35 +476,64 @@
         const content = document.querySelector('.content');
         const loading = document.querySelector('.loading');
 
+        // Charger la section active à partir du sessionStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeTabId = sessionStorage.getItem('activeTab');
+            if (activeTabId) {
+                const activeTab = document.querySelector(`#${activeTabId}`);
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                    const targetSection = document.querySelector(activeTab.getAttribute('href'));
+                    targetSection.classList.add('active');
+                }
+            }
+        });
+
+        // Ajouter l'événement de click sur les onglets de la sidebar
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                sections.forEach(section => section.classList.remove('active'));
-                const target = document.querySelector(tab.getAttribute('href'));
-                target.classList.add('active');
-                loading.classList.add('active');
+                tabs.forEach(t => t.classList.remove('active')); // Retirer la classe 'active' de tous les onglets
+                tab.classList.add('active'); // Ajouter la classe 'active' à l'onglet sélectionné
+
+                sections.forEach(section => {
+                    section.classList.remove('active'); // Retirer la classe 'active' de toutes les sections
+                });
+
+                const target = document.querySelector(tab.getAttribute('href')); // Récupérer la section correspondant à l'onglet
+                target.classList.add('active'); // Ajouter la classe 'active' à la section cible
+
+                // Sauvegarder l'onglet actif dans le sessionStorage
+                sessionStorage.setItem('activeTab', tab.getAttribute('href').substring(1));
+
+                loading.classList.add('active'); // Afficher le loader
                 setTimeout(() => {
-                    loading.classList.remove('active');
+                    loading.classList.remove('active'); // Retirer le loader après 1 seconde
                 }, 1000);
-                sidebar.classList.add('active');
-                content.classList.remove('collapsed');
+
+                sidebar.classList.add('active'); // S'assurer que la barre latérale est affichée
+                content.classList.remove('collapsed'); // Enlever la classe 'collapsed' pour garantir l'affichage du contenu
             });
         });
 
+        // Fonction pour basculer la sidebar
         function toggleSidebar() {
             sidebar.classList.toggle('active');
             content.classList.toggle('collapsed');
         }
 
-        // Ensure the sidebar is visible when a tab is clicked
+        // Ajouter une écoute de l'événement click sur le document pour réagir au clic sur un lien de la sidebar
         document.addEventListener('click', (e) => {
             if (e.target.closest('.sidebar a')) {
-                sidebar.classList.add('active');
-                content.classList.remove('collapsed');
+                sidebar.classList.add('active'); // Afficher la sidebar lorsque l'on clique sur un lien
+                content.classList.remove('collapsed'); // S'assurer que le contenu est visible
             }
         });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+        window.location.href = "{% url 'logout' %}";
+        });
+        
     </script>
 </body>
 </html>
