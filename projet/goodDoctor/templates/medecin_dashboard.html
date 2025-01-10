@@ -36,28 +36,32 @@
             margin: 10px 0;
         }
 
+        footer {
+            background: #0d6efd;
+            color: white;
+        }
+
         .dashboard {
             display: flex;
             transition: margin-left 0.3s;
         }
 
         .sidebar {
-            width: 250px;
-            background: #4facfe;
+            width: 60px; /* Réduite à 60px */
+            background: linear-gradient(90deg,#00f2fe, #4facfe);
             color: white;
             min-height: 100vh;
             padding: 20px;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            transform: translateX(-100%);
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1001;
+            transition: width 0.3s;
         }
 
         .sidebar.active {
-            transform: translateX(0);
+            width: 150px; /* Réduite à 200px */
         }
 
         .sidebar ul {
@@ -68,6 +72,7 @@
 
         .sidebar ul li {
             margin: 20px 0;
+            position: relative;
         }
 
         .sidebar ul li a {
@@ -90,15 +95,25 @@
             margin-right: 10px;
         }
 
+        .sidebar ul li a span {
+            display: none;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar.active ul li a span {
+            display: inline;
+            opacity: 1;
+        }
+
         .content {
             flex: 1;
             padding: 20px;
-            margin-left: 250px;
+            margin-left: 90px; /* Réduite à 60px */
             transition: margin-left 0.3s;
         }
 
         .content.collapsed {
-            margin-left: 0;
+            margin-left: 200px; /* Réduite à 200px */
         }
 
         .section {
@@ -188,7 +203,7 @@
             cursor: pointer;
             position: fixed;
             top: 20px;
-            left: 20px;
+            left: 70px; /* Déplacé à 70px */
             z-index: 1002;
             transition: transform 0.3s;
         }
@@ -223,94 +238,161 @@
             to { transform: rotate(360deg); }
         }
 
-/* Pour le bouton de déconnexion */
-.Btn {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 45px;
-    height: 45px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition-duration: 0.3s;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-    background-color: white;
-}
+        /* Pour le bouton de déconnexion */
+        .Btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition-duration: 0.3s;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+            background-color: white;
+        }
 
-/* plus sign */
-.sign {
-    width: 100%;
-    transition-duration: 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        /* plus sign */
+        .sign {
+            width: 100%;
+            transition-duration: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.sign svg {
-    width: 17px;
-}
+        .sign svg {
+            width: 17px;
+        }
 
-.sign svg path {
-    fill: black;
-}
+        .sign svg path {
+            fill: black;
+        }
 
-/* text */
-.text {
-    position: absolute;
-    right: 0%;
-    width: 0%;
-    opacity: 0;
-    color: white;
-    font-size: 1.2em;
-    font-weight: 600;
-    transition-duration: 0.3s;
-}
+        /* text */
+        .text {
+            position: absolute;
+            right: 0%;
+            width: 0%;
+            opacity: 0;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition-duration: 0.3s;
+        }
 
-/* hover effect on button width */
-.Btn:hover {
-    background-color: rgb(99, 205, 250);
-    width: 125px;
-    border-radius: 40px;
-    transition-duration: 0.3s;
-}
+        /* hover effect on button width */
+        .Btn:hover {
+            background-color: rgb(99, 205, 250);
+            width: 125px;
+            border-radius: 40px;
+            transition-duration: 0.3s;
+        }
 
-.Btn:hover .sign {
-    width: 00%;
-    transition-duration: 0.3s;
-    padding-left: 20px;
-}
+        .Btn:hover .sign {
+            width: 00%;
+            transition-duration: 0.3s;
+            padding-left: 20px;
+        }
 
-.Btn:hover .sign svg path {
-    fill: white;
-}
+        .Btn:hover .sign svg path {
+            fill: white;
+        }
 
-/* hover effect button's text */
-.Btn:hover .text {
-    opacity: 1;
-    width: 90%;
-    transition-duration: 0.3s;
-    padding-right: 10px;
-}
+        /* hover effect button's text */
+        .Btn:hover .text {
+            opacity: 1;
+            width: 90%;
+            transition-duration: 0.3s;
+            padding-right: 10px;
+        }
 
-/* button click effect*/
-.Btn:active {
-    transform: translate(2px, 2px);
-}
+        /* button click effect*/
+        .Btn:active {
+            transform: translate(2px, 2px);
+        }
 
-/* Positionner le bouton de déconnexion à droite */
-.logout-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 10px;
-}
+        /* Positionner le bouton de déconnexion à droite */
+        .logout-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px;
+        }
 
+        /* Menu hamburger styles */
+        #checkbox {
+            display: none;
+        }
+
+        .toggle {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 10px;
+            transition-duration: .5s;
+            position: fixed;
+            top: 20px;
+            left: 120px; /* Déplacé à 70px */
+            z-index: 1002;
+        }
+
+        .bars {
+            width: 100%;
+            height: 4px;
+            background-color: rgb(42, 42, 43);
+            border-radius: 4px;
+        }
+
+        #bar2 {
+            transition-duration: .8s;
+        }
+
+        #bar1 {
+            width: 50%;
+        }
+
+        #bar2 {
+            width: 75%;
+        }
+
+        #checkbox:checked + .toggle .bars {
+            position: absolute;
+            transition-duration: .5s;
+        }
+
+        #checkbox:checked + .toggle #bar2 {
+            transform: scaleX(0);
+            transition-duration: .1s;
+        }
+
+        #checkbox:checked + .toggle #bar1 {
+            width: 100%;
+            transform: rotate(45deg);
+            transition-duration: .5s;
+        }
+
+        #checkbox:checked + .toggle #bar3 {
+            width: 100%;
+            transform: rotate(-45deg);
+            transition-duration: .5s;
+        }
+
+        #checkbox:checked + .toggle {
+            transition-duration: .5s;
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
@@ -332,137 +414,130 @@
                 <div class="text">Déconnexion</div>
             </button>
         </div>
-    </header>    
+    </header>
 
-    <button class="toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <!-- Menu hamburger -->
+    <input id="checkbox" type="checkbox">
+    <label class="toggle" for="checkbox">
+        <div id="bar1" class="bars"></div>
+        <div id="bar2" class="bars"></div>
+        <div id="bar3" class="bars"></div>
+    </label>
 
-    <div class="dashboard">
-        <aside class="sidebar">
-            <ul>
-                <li><a href="#profile" class="active"><i class="fas fa-user"></i> Profil</a></li>
-                <li><a href="#appointments"><i class="fas fa-calendar-alt"></i> Rendez-vous</a></li>
-                <li><a href="#messages"><i class="fas fa-envelope"></i> Messages</a></li>
-                <li><a href="#reviews"><i class="fas fa-star"></i> Évaluations</a></li>
-                <li><a href="#availability"><i class="fas fa-clock"></i> Disponibilités</a></li>
-                <li><a href="#HistoriqueMedical"><i class="fas fa-clock"></i> Historiques Médicales</a></li>
-            </ul>
-        </aside>
-
-        <main class="content">
-            <section id="profile" class="section">
-                <h2>Mon Profil</h2>
-                <form class="profile-form" method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label>Nom Complet</label>
-                        <input type="text" value="{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Spécialité</label>
-                        <input type="text" value="{{ medecin.specialite }}" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Téléphone</label>
-                        <input type="text" name="telephone" value="{{ medecin.utilisateurs.telephone }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" value="{{ medecin.utilisateurs.email }}" readonly>
-                    </div>
-                    <button type="submit" class="btn">Mettre à jour</button>
-                </form>
-            </section>            
-
-            <section id="appointments" class="section active">
-                <h2>Mes Rendez-vous</h2>
-                <div class="appointment-list">
-                    {% for rendez_vous in rendez_vous %}
-                    <div class="appointment-item">
-                        <p><strong>Patient :</strong> {{ rendez_vous.patient.prenom }} {{ rendez_vous.patient.nom }}</p>
-                        <p><strong>Date :</strong> {{ rendez_vous.date_heure|date:"d F Y" }}</p>
-                        <p><strong>Heure :</strong> {{ rendez_vous.date_heure|time:"H:i" }}</p>
-                        <div class="actions">
-                            <button class="btn btn-success">Accepter</button>
-                            <button class="btn btn-danger">Rejeter</button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-
-            <section id="messages" class="section">
-                <h2>Messages</h2>
-                <div>Vos messages apparaîtront ici.</div>
-            </section>
-
-            <section id="reviews" class="section">
-                <h2>Évaluations</h2>
-                <div>Vos évaluations apparaîtront ici.</div>
-            </section>
-
-            <section id="availability" class="section">
-                <h2>Disponibilités</h2>
-                <form class="availability-form" method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="jour">Jour</label>
-                        <select name="jour" required>
-                            <option value="lundi">Lundi</option>
-                            <option value="mardi">Mardi</option>
-                            <option value="mercredi">Mercredi</option>
-                            <option value="jeudi">Jeudi</option>
-                            <option value="vendredi">Vendredi</option>
-                            <option value="samedi">Samedi</option>
-                            <option value="dimanche">Dimanche</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="heure_de_debut">Heure de début</label>
-                        <input type="time" name="heure_de_debut" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="heure_de_fin">Heure de fin</label>
-                        <input type="time" name="heure_de_fin" required>
-                    </div>
-                    <button type="submit" class="btn">Ajouter</button>
-                </form>
-            
-                <h3>Mes disponibilités :</h3>
-                <ul>
-                    {% for dispo in medecin.disponibilites.all %}
-                        <li>{{ dispo.jour }} : {{ dispo.heure_de_debut|time:"H:i" }} - {{ dispo.heure_de_fin|time:"H:i" }}</li>
-                    {% empty %}
-                        <p>Aucune disponibilité ajoutée.</p>
-                    {% endfor %}
-                </ul>
-            </section>
-            
-            
-
-            <section  id="HistoriqueMedical" class="section">
-                <h2>Historiques Médicales</h2>
-                <form action="HistoriqueMedical">
-                    <div>
-                        {% for historique in historiques_medicaux %}
-                        <div>
-                            <li>
-                                <strong>Patient :</strong> {{ historique.patient.nom }} {{ historique.patient.prenom }}<br>
-                                <strong>Date :</strong> {{ historique.date|date:"d/m/Y H:i" }}<br>
-                                <strong>Description :</strong> {{ historique.description }}<br>
-                                <strong>Médecin Responsable :</strong> {{ historique.medecin_responsable.utilisateurs.nom }} {{ historique.medecin_responsable.utilisateurs.prenom }}
-                            </li>
-                        {% empty %}
-                            <p>Aucun historique médical disponible.</p>
-                        {% endfor %}
-                        </div>
-                    </div>
-                </form>
-            </section>
-        </main>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li><a href="#" data-section="profile" class="active"><i class="fas fa-user"></i><span>Profil</span></a></li>
+            <li><a href="#" data-section="appointments"><i class="fas fa-calendar-alt"></i><span>Rendez-vous</span></a></li>
+            <li><a href="#" data-section="historique"><i class="fas fa-history"></i><span>Historiques</span></a></li>
+            <li><a href="#" data-section="evaluations"><i class="fas fa-star"></i><span>Évaluations</span></a></li>
+            <li><a href="#" data-section="availability"><i class="fas fa-clock"></i><span>Disponibilité</span></a></li>
+        </ul>
     </div>
 
-    <footer>
-        &copy; 2024 Dashboard Médecin
+    <!-- Content -->
+    <div class="content">
+        <section id="evaluations" class="section">
+            <h2>Évaluations</h2>
+            <div>Vos évaluations apparaîtront ici.</div>
+        </section>
+        <section id="profile" class="section active">
+            <h2>Mon Profil</h2>
+            <form class="profile-form" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nom Complet</label>
+                    <input type="text" value="{{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Spécialité</label>
+                    <input type="text" value="{{ medecin.specialite }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="text" name="telephone" value="{{ medecin.utilisateurs.telephone }}">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="{{ medecin.utilisateurs.email }}" readonly>
+                </div>
+                <button type="submit" class="btn">Mettre à jour</button>
+            </form>
+        </section>
+        <section id="appointments" class="section">
+            <h2>Mes Rendez-vous</h2>
+            <div class="appointment-list">
+                {% for rendez_vous in rendez_vous %}
+                <div class="appointment-item">
+                    <p><strong>Patient :</strong> {{ rendez_vous.patient.prenom }} {{ rendez_vous.patient.nom }}</p>
+                    <p><strong>Date :</strong> {{ rendez_vous.date_heure|date:"d F Y" }}</p>
+                    <p><strong>Heure :</strong> {{ rendez_vous.date_heure|time:"H:i" }}</p>
+                    <div class="actions">
+                        <button class="btn btn-success">Accepter</button>
+                        <button class="btn btn-danger">Rejeter</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        <section id="availability" class="section">
+            <h2>Disponibilités</h2>
+            <form class="availability-form" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="jour">Jour</label>
+                    <select name="jour" required>
+                        <option value="lundi">Lundi</option>
+                        <option value="mardi">Mardi</option>
+                        <option value="mercredi">Mercredi</option>
+                        <option value="jeudi">Jeudi</option>
+                        <option value="vendredi">Vendredi</option>
+                        <option value="samedi">Samedi</option>
+                        <option value="dimanche">Dimanche</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="heure_de_debut">Heure de début</label>
+                    <input type="time" name="heure_de_debut" required>
+                </div>
+                <div class="form-group">
+                    <label for="heure_de_fin">Heure de fin</label>
+                    <input type="time" name="heure_de_fin" required>
+                </div>
+                <button type="submit" class="btn">Ajouter</button>
+            </form>
+        
+            <h3>Mes disponibilités :</h3>
+            <ul>
+                {% for dispo in medecin.disponibilites.all %}
+                    <li>{{ dispo.jour }} : {{ dispo.heure_de_debut|time:"H:i" }} - {{ dispo.heure_de_fin|time:"H:i" }}</li>
+                {% empty %}
+                    <p>Aucune disponibilité ajoutée.</p>
+                {% endfor %}
+            </ul>
+        </section>
+        <section id="historique" class="section">
+            <h2>Historiques</h2>
+            <div>
+                {% for historique in historiques_medicaux %}
+                <div>
+                    <li>
+                        <strong>Patient :</strong> {{ historique.patient.nom }} {{ historique.patient.prenom }}<br>
+                        <strong>Date :</strong> {{ historique.date|date:"d/m/Y H:i" }}<br>
+                        <strong>Description :</strong> {{ historique.description }}<br>
+                        <strong>Médecin Responsable :</strong> {{ historique.medecin_responsable.utilisateurs.nom }} {{ historique.medecin_responsable.utilisateurs.prenom }}
+                    </li>
+                {% empty %}
+                    <p>Aucun historique médical disponible.</p>
+                {% endfor %}
+                </div>
+            </div>
+        </section>
+        
+    </div>
+
+    <footer class="text-center py-4">
+        <p>© 2024 goodDoctor. Tous droits réservés. | <a href="#" class="text-white">Politique de confidentialité</a></p>
     </footer>
 
     <div class="loading">
@@ -470,70 +545,30 @@
     </div>
 
     <script>
-        const tabs = document.querySelectorAll('.sidebar a');
-        const sections = document.querySelectorAll('.section');
-        const sidebar = document.querySelector('.sidebar');
-        const content = document.querySelector('.content');
-        const loading = document.querySelector('.loading');
-
-        // Charger la section active à partir du sessionStorage
-        document.addEventListener('DOMContentLoaded', () => {
-            const activeTabId = sessionStorage.getItem('activeTab');
-            if (activeTabId) {
-                const activeTab = document.querySelector(`#${activeTabId}`);
-                if (activeTab) {
-                    activeTab.classList.add('active');
-                    const targetSection = document.querySelector(activeTab.getAttribute('href'));
-                    targetSection.classList.add('active');
-                }
-            }
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            window.location.href = "{% url 'logout' %}";
         });
 
-        // Ajouter l'événement de click sur les onglets de la sidebar
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                tabs.forEach(t => t.classList.remove('active')); // Retirer la classe 'active' de tous les onglets
-                tab.classList.add('active'); // Ajouter la classe 'active' à l'onglet sélectionné
+        // Toggle sidebar
+        document.getElementById('checkbox').addEventListener('change', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.content').classList.toggle('collapsed');
+        });
 
-                sections.forEach(section => {
-                    section.classList.remove('active'); // Retirer la classe 'active' de toutes les sections
+        // Show/hide sections
+        document.querySelectorAll('.sidebar ul li a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
                 });
-
-                const target = document.querySelector(tab.getAttribute('href')); // Récupérer la section correspondant à l'onglet
-                target.classList.add('active'); // Ajouter la classe 'active' à la section cible
-
-                // Sauvegarder l'onglet actif dans le sessionStorage
-                sessionStorage.setItem('activeTab', tab.getAttribute('href').substring(1));
-
-                loading.classList.add('active'); // Afficher le loader
-                setTimeout(() => {
-                    loading.classList.remove('active'); // Retirer le loader après 1 seconde
-                }, 1000);
-
-                sidebar.classList.add('active'); // S'assurer que la barre latérale est affichée
-                content.classList.remove('collapsed'); // Enlever la classe 'collapsed' pour garantir l'affichage du contenu
+                document.getElementById(this.dataset.section).classList.add('active');
+                document.querySelectorAll('.sidebar ul li a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                this.classList.add('active');
             });
         });
-
-        // Fonction pour basculer la sidebar
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            content.classList.toggle('collapsed');
-        }
-
-        // Ajouter une écoute de l'événement click sur le document pour réagir au clic sur un lien de la sidebar
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.sidebar a')) {
-                sidebar.classList.add('active'); // Afficher la sidebar lorsque l'on clique sur un lien
-                content.classList.remove('collapsed'); // S'assurer que le contenu est visible
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-        window.location.href = "{% url 'logout' %}";
-        });
-        
     </script>
 </body>
 </html>

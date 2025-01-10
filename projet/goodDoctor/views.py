@@ -42,11 +42,14 @@ def patient_dashboard(request):
         try:
             medecin = Medecin.objects.get(id=medecin_id)
             medecins = [medecin]
+            confirmation_message = f"Veuillez confirmer votre prise de rendez-vous avec Dr. {medecin.utilisateurs.prenom} {medecin.utilisateurs.nom}"
         except Medecin.DoesNotExist:
             messages.error(request, "Médecin sélectionné introuvable.")
             medecins = Medecin.objects.all()
+            confirmation_message = None
     else:
         medecins = Medecin.objects.all()
+        confirmation_message = None
 
     # Récupérer les disponibilités des médecins
     disponibilites = DisponibiliteMedecin.objects.filter(medecin__in=medecins)
@@ -56,6 +59,7 @@ def patient_dashboard(request):
         'rendez_vous': rendez_vous,
         'medecins': medecins,
         'disponibilites': disponibilites,
+        'confirmation_message': confirmation_message,
     }
 
     return render(request, 'patient_dashboard.html', context)
@@ -263,9 +267,13 @@ def recherche_medecin(request):
 def prendre_rendez_vous(request, medecin_id):
     if request.method == 'POST':
         medecin = Medecin.objects.get(id=medecin_id)
-        patient = Utilisateurs.objects.get(id=request.session['utilisateur_id'])
-        date_heure = request.POST.get('date_heure')
+        patient = request.user
+        date = request.POST.get('date')
+        heure = request.POST.get('heure')
         motif = request.POST.get('motif')
+
+        # Combiner la date et l'heure
+        date_heure = f"{date} {heure}"
 
         rendez_vous = RendezVous.objects.create(
             patient=patient,
@@ -278,11 +286,8 @@ def prendre_rendez_vous(request, medecin_id):
         messages.success(request, "Rendez-vous pris avec succès.")
         return redirect('patient_dashboard')
 
-    medecin = Medecin.objects.get(id=medecin_id)
-    context = {
-        'medecin': medecin,
-    }
-    return render(request, 'prendre_rendez_vous.html', context)
+    return redirect('patient_dashboard')
+
 
 #modif du 30/12
 @login_required

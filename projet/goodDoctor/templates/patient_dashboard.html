@@ -48,6 +48,7 @@
     <section class="py-5">
         <div class="container">
             <h2 class="text-center">Vos Rendez-vous</h2>
+
             {% if rendez_vous %}
                 <div class="row mt-4">
                     {% for rv in rendez_vous %}
@@ -70,45 +71,66 @@
         </div>
     </section>
 
-    <!-- Médecins Section -->
+    <!-- Médecins Disponibles Section -->
     <section class="py-5">
         <div class="container">
-            <h2 class="text-center">Nos Médecins</h2>
-            {% if medecins %}
-                <div class="row mt-4">
-                    {% for medecin in medecins %}
-                        <div class="col-md-4">
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">Dr. {{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}</h5>
-                                    <p><strong>Spécialité :</strong> {{ medecin.specialite }}</p>
-                                    <p><strong>Disponibilités :</strong></p>
-                                    <ul>
-                                        {% for dispo in disponibilites %}
-                                            {% if dispo.medecin.id == medecin.id %}
-                                                <li>{{ dispo.jour }} : {{ dispo.heure_de_debut|time:"H:i" }} - {{ dispo.heure_de_fin|time:"H:i" }}</li>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </ul>
+            <h2 class="text-center">Médecins Disponibles</h2>
+            {% if confirmation_message %}
+                <div class="alert alert-info">{{ confirmation_message }}</div>
+            {% endif %}
+            <div class="row mt-4">
+                {% for medecin in medecins %}
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Dr. {{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}</h5>
+                                <p><strong>Spécialité :</strong> {{ medecin.specialite }}</p>
+                                <p><strong>Disponibilités :</strong></p>
+                                <ul>
+                                    {% for disponibilite in disponibilites %}
+                                        {% if disponibilite.medecin.id == medecin.id %}
+                                            <li>{{ disponibilite.jour }} : {{ disponibilite.heure_de_debut }} - {{ disponibilite.heure_de_fin }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal{{ medecin.id }}">Prendre Rendez-vous</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for Appointment -->
+                    <div class="modal fade" id="appointmentModal{{ medecin.id }}" tabindex="-1" aria-labelledby="appointmentModalLabel{{ medecin.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="appointmentModalLabel{{ medecin.id }}">Prendre Rendez-vous avec Dr. {{ medecin.utilisateurs.prenom }} {{ medecin.utilisateurs.nom }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action="{% url 'prendre_rendez_vous' medecin.id %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label for="date{{ medecin.id }}" class="form-label">Date :</label>
+                                            <input type="date" class="form-control" id="date{{ medecin.id }}" name="date" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="heure{{ medecin.id }}" class="form-label">Heure :</label>
+                                            <input type="time" class="form-control" id="heure{{ medecin.id }}" name="heure" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="motif{{ medecin.id }}" class="form-label">Motif :</label>
+                                            <textarea class="form-control" id="motif{{ medecin.id }}" name="motif" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Confirmer</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-center">Aucun médecin disponible.</p>
-            {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </section>
-
-    <!-- Messages de confirmation -->
-    {% if messages %}
-        <div class="container">
-            {% for message in messages %}
-                <div class="alert {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
 
     <!-- About Section -->
     <section id="about" class="bg-light py-5">
