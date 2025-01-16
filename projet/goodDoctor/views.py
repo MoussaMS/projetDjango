@@ -283,7 +283,7 @@ def prendre_rendez_vous(request, medecin_id):
             statut='en attente'
         )
         rendez_vous.save()
-        messages.success(request, "Rendez-vous pris avec succès.")
+        messages.success(request, "Votre Rendez-Vous a été pris succès !!")
         return redirect('patient_dashboard')
 
     return redirect('patient_dashboard')
